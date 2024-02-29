@@ -76,7 +76,7 @@ def srtf(processes):
         print(updated_process)
         updated_process[2] -= 1
 
-        if store_id is not None and available[0] != store_id:
+        if store_id is not None and available[0] != store_id and start_time == end_time:
             start_time = end_time
             pid, arrival_time, burst_time = previous
             end_time = current_time
