@@ -1,4 +1,3 @@
-
 def fcfs(processes):
     processes.sort(key=lambda x: x[1]) # Sort by arrival time
     current_time = 0
@@ -55,6 +54,9 @@ def srtf(processes):
     end_time = 0
     store_id = None
 
+    for process in processes:
+        hold_wt.append((process[0], 0))
+
 
     while processes:
         available_process = []
@@ -73,7 +75,6 @@ def srtf(processes):
         available_process.sort(key=lambda x: (x[2], x[1]))
         available = available_process[0]
         updated_process = list(available)
-        print(updated_process)
         updated_process[2] -= 1
 
         if store_id is not None and available[0] != store_id and start_time == end_time:
@@ -83,6 +84,13 @@ def srtf(processes):
             waiting_time = 0
             waiting_times.append((pid, start_time , end_time, waiting_time))
 
+            for hold in hold_wt:
+                if pid == hold[0] and updated_process[2] != 0:
+                    update_wt = hold[1]
+                    update_wt = end_time - start_time
+                    hold_wt.remove(hold)
+                    hold_wt.append((pid, update_wt))
+
         store_id = available[0]
         current_time += 1
         
@@ -91,7 +99,12 @@ def srtf(processes):
             processes.remove(available)
             pid, arrival_time, burst_time = available
             end_time = current_time
-            waiting_time = end_time - arrival_time
+
+            for hold in hold_wt:
+                if pid == hold[0]:
+                    print(hold)
+                    waiting_time = start_time - arrival_time - hold[1]
+
             waiting_times.append((pid, start_time , end_time, waiting_time))
         else:
             previous = available
