@@ -50,8 +50,11 @@ def srtf(processes):
     # Sort processes by arrival time and then by burst time
     current_time = 0
     waiting_times = []
+    hold_wt = []
     start_time = 0
     end_time = 0
+    store_id = None
+
 
     while processes:
         available_process = []
@@ -66,24 +69,32 @@ def srtf(processes):
             
             continue
 
-        current_time += 1
+        
         available_process.sort(key=lambda x: (x[2], x[1]))
         available = available_process[0]
         updated_process = list(available)
         print(updated_process)
         updated_process[2] -= 1
-        
-        
-        
 
+        if store_id is not None and available[0] != store_id:
+            start_time = end_time
+            pid, arrival_time, burst_time = previous
+            end_time = current_time
+            waiting_time = 0
+            waiting_times.append((pid, start_time , end_time, waiting_time))
+
+        store_id = available[0]
+        current_time += 1
+        
         if updated_process[2] == 0:
             start_time = end_time
             processes.remove(available)
             pid, arrival_time, burst_time = available
             end_time = current_time
-            waiting_time = end_time - arrival_time - burst_time
+            waiting_time = end_time - arrival_time
             waiting_times.append((pid, start_time , end_time, waiting_time))
         else:
+            previous = available
             processes.remove(available)
             processes.append(updated_process)
 
