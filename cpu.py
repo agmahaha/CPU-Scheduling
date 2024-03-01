@@ -79,7 +79,7 @@ def srtf(processes):
         updated_process[2] -= 1
         print(updated_process)
         
-        if store_id is not None and available[0] != store_id:
+        if store_id is not None and available[0] != store_id and previous != []:
             start_time = end_time
             pid, arrival_time, burst_time = previous
             end_time = current_time
@@ -101,10 +101,10 @@ def srtf(processes):
             processes.remove(available)
             pid, arrival_time, burst_time = available
             end_time = current_time
+            previous = []
 
             for hold in hold_wt:
                 if pid == hold[0]:
-                    # print(hold)
                     waiting_time = start_time - arrival_time - hold[1]
 
             waiting_times.append((pid, start_time , end_time, waiting_time))
