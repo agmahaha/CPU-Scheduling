@@ -123,8 +123,28 @@ def srtf(processes):
     return waiting_times
 
 def rr(processes, time_quantum):
+    current_time = 0
+    waiting_times = []
+
+    while processes:
+        for i in range(len(processes)):
+            pid, arrival_time, burst_time = processes[i]
+
+            if burst_time > 0:
+                start_time = current_time
+                end_time = min(start_time + time_quantum, start_time + burst_time)
+                waiting_time = start_time - arrival_time
+
+                waiting_times.append((pid, start_time, end_time, waiting_time))
+
+                current_time = end_time
+                processes[i][2] -= min(time_quantum, burst_time)
+
+        # Remove completed processes
+        processes = [process for process in processes if process[2] > 0]
 
     return waiting_times
+
 
 filename = input("Enter Filename: ")
 
