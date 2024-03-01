@@ -46,14 +46,13 @@ def sjf(processes):
     return waiting_times
 
 def srtf(processes):
-    # Sort processes by arrival time and then by burst time
     current_time = 0
     waiting_times = []
     hold_wt = []
     start_time = 0
     end_time = 0
-    curr_hold = 0
     store_id = None
+    update_wt = None
 
     for process in processes:
         hold_wt.append((process[0], 0))
@@ -77,7 +76,6 @@ def srtf(processes):
         available = available_process[0]
         updated_process = list(available)
         updated_process[2] -= 1
-        print(updated_process)
         
         if store_id is not None and available[0] != store_id and previous != []:
             start_time = end_time
@@ -89,10 +87,18 @@ def srtf(processes):
             for hold in hold_wt:
                 if pid == hold[0]:
                     update_wt = hold[1]
-                    update_wt = end_time - start_time
-                    hold_wt.remove(hold)
-                    hold_wt.append((pid, update_wt))
+                    print(f"{end_time} - {start_time}")
+                    update_wt += end_time - start_time
 
+                    print(available)
+                    print(previous)
+                    print(update_wt)
+                    hold_wt.remove(hold) 
+
+            if update_wt != None:
+                hold_wt.append((pid, update_wt))
+                update_wt = None
+                    
         store_id = available[0]
         current_time += 1
         
@@ -105,6 +111,7 @@ def srtf(processes):
 
             for hold in hold_wt:
                 if pid == hold[0]:
+                    print(hold)
                     waiting_time = start_time - arrival_time - hold[1]
 
             waiting_times.append((pid, start_time , end_time, waiting_time))
@@ -112,12 +119,12 @@ def srtf(processes):
             previous = available
             processes.remove(available)
             processes.append(updated_process)
-
-        
-
                 
     return waiting_times
 
+def rr(processes, time_quantum):
+
+    return waiting_times
 
 filename = input("Enter Filename: ")
 
@@ -139,7 +146,8 @@ try:
             waiting_times = sjf(processes)
         elif algorithm == 2:
             waiting_times = srtf(processes)
-        # Add other scheduling algorithms here if needed
+        elif algorithm == 3:
+            waiting_times = rr(processes, time_quantum)
 
         # Print the waiting times for each process
         for pid, start_time, end_time, waiting_time in waiting_times:
