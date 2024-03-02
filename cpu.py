@@ -87,12 +87,7 @@ def srtf(processes):
             for hold in hold_wt:
                 if pid == hold[0]:
                     update_wt = hold[1]
-                    print(f"{end_time} - {start_time}")
                     update_wt += end_time - start_time
-
-                    print(available)
-                    print(previous)
-                    print(update_wt)
                     hold_wt.remove(hold) 
 
             if update_wt != None:
@@ -125,24 +120,81 @@ def srtf(processes):
 def rr(processes, time_quantum):
     current_time = 0
     waiting_times = []
+    hold_wt = []
+    queued_process = []
+    start_time = 0
+    end_time = 0
+    store_id = None
+    update_wt = None
+
+    for process in processes:
+        hold_wt.append((process[0], 0))
+
+    processes.sort(key=lambda x: (x[1], x[0]))
+
+    for process in processes:
+        hold_wt.append((process[0], 0))
+
 
     while processes:
-        for i in range(len(processes)):
-            pid, arrival_time, burst_time = processes[i]
+        available_process = []
+        for process in processes:
+            arrival_time = process[1]
 
-            if burst_time > 0:
-                start_time = current_time
-                end_time = min(start_time + time_quantum, start_time + burst_time)
-                waiting_time = start_time - arrival_time
+            if arrival_time <= current_time:
+                available_process.append(process)
 
-                waiting_times.append((pid, start_time, end_time, waiting_time))
+        if available_process == []:
+            current_time += 1
+            
+            continue
 
-                current_time = end_time
-                processes[i][2] -= min(time_quantum, burst_time)
+        queue = set(tuple(process) for process in queued_process)
+        queued_process.extend(process for process in available_process if tuple(process) not in queue)
 
-        # Remove completed processes
-        processes = [process for process in processes if process[2] > 0]
+        available = queued_process[0]
+        updated_process = list(available)
+        
+        if store_id is not None and available[0] != store_id and previous != []:
+            start_time = end_time
+            pid, arrival_time, burst_time = previous
+            end_time = current_time
+            waiting_time = 0
+            waiting_times.append((pid, start_time , end_time, waiting_time))
 
+            for hold in hold_wt:
+                if pid == hold[0]:
+                    update_wt = hold[1]
+                    update_wt += end_time - start_time
+                    hold_wt.remove(hold) 
+
+            if update_wt != None:
+                hold_wt.append((pid, update_wt))
+                update_wt = None
+                    
+        store_id = available[0]
+        
+        if updated_process[2] <= time_quantum:
+            current_time += updated_process[2]
+            start_time = end_time
+            queued_process.remove(available)
+            processes.remove(available)
+            pid, arrival_time, burst_time = available
+            end_time = current_time
+            previous = []
+
+            for hold in hold_wt:
+                if updated_process[0] == hold[0]:
+                    waiting_time = start_time - arrival_time - hold[1]
+
+            waiting_times.append((pid, start_time , end_time, waiting_time))
+        else:
+            previous = available
+            updated_process[2] -= time_quantum
+            current_time += time_quantum
+            queued_process.remove(available)
+            processes.remove(available)
+            processes.append(updated_process)
     return waiting_times
 
 
