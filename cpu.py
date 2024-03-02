@@ -132,10 +132,6 @@ def rr(processes, time_quantum):
 
     processes.sort(key=lambda x: (x[1], x[0]))
 
-    for process in processes:
-        hold_wt.append((process[0], 0))
-
-
     while processes:
         available_process = []
         for process in processes:
