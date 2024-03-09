@@ -106,7 +106,6 @@ def srtf(processes):
 
             for hold in hold_wt:
                 if pid == hold[0]:
-                    print(hold)
                     waiting_time = start_time - arrival_time - hold[1]
 
             waiting_times.append((pid, start_time , end_time, waiting_time))
